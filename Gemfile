@@ -8,6 +8,7 @@ gem 'kaminari', github: 'harai/kaminari', branch: 'route_prefix_prototype'
 gem 'sufia-models', path: './sufia-models'
 gem 'sass', '~> 3.2.15'
 gem 'sprockets', '~> 2.11.0'
+gem 'active-fedora', github: 'projecthydra/active_fedora', branch: 'fedora-4'
 
 group :development, :test do
   gem 'sqlite3'
