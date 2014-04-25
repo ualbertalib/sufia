@@ -221,12 +221,8 @@ describe GenericFile do
       #   Sufia.queue.should_receive(:push).once
       # end
       after(:each) do
-        unless @file.inner_object.class == ActiveFedora::UnsavedDigitalObject
-          begin
-            @file.delete
-          rescue ActiveFedora::ObjectNotFoundError
-            # do nothing
-          end
+        unless @file.new_record?
+          @file.delete
         end
       end
       it "should have activity stream-related methods defined" do
@@ -486,7 +482,7 @@ describe GenericFile do
   describe "noid integration" do
     before(:all) do
       GenericFile.any_instance.should_receive(:characterize_if_changed).and_yield
-      @new_file = GenericFile.new(:pid => 'ns:123')
+      @new_file = GenericFile.new('ns-123')
       @new_file.apply_depositor_metadata('mjg36')
       @new_file.save
     end
@@ -566,7 +562,7 @@ describe GenericFile do
   describe "label" do
     it "should set the inner label" do
       @file.label = "My New Label"
-      @file.inner_object.label.should == "My New Label"
+      @file.label.should == "My New Label"
     end
   end
   context "with rightsMetadata" do

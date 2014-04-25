@@ -29,7 +29,7 @@ module Sufia
         end
 
         self.thumbnail.content = File.open(output_file, 'rb').read
-        self.thumbnail.mimeType = 'image/png'
+        self.thumbnail.mime_type = 'image/png'
       end
 
     end

@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe ActiveFedora::UnsavedDigitalObject do
+describe ActiveFedora::Persistence do
   it "should have an ARK-style pid" do    
-    @obj = ActiveFedora::UnsavedDigitalObject.new(ActiveFedora::Base, 'id')
+    @obj = ActiveFedora::Base.new
     @obj.save
     Sufia::IdService.valid?(@obj.pid).should be_true
   end
