@@ -40,7 +40,6 @@
 //= require sufia/audio
 //= require sufia/search
 //= require sufia/editor
-//= require sufia/collections
 //= require sufia/ga_events
 //= require hydra/batch_select
 //= require hydra_collections
