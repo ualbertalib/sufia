@@ -161,8 +161,7 @@ function get_visibility(){
  * set other users/groups to 'read' (it would be over ruled by the
  * visibility of Open or Institution) so disable the Read option
  */
-function set_access_levels()
-{
+function set_access_levels() {
   var vis = get_visibility();
   var enabled_disabled = false;
   if (vis == "open" || vis == "psu") {
@@ -184,8 +183,7 @@ function set_access_levels()
  * make sure the permission being applied is not for a user/group
  * that already has a permission.
  */
-function is_permission_duplicate(user_or_group_name)
-{
+function is_permission_duplicate(user_or_group_name) {
   s = "[" + user_or_group_name + "]";
   var patt = new RegExp(preg_quote(s), 'gi');
   var perms_input = $("input[name^='generic_file[permissions]']");
@@ -209,4 +207,20 @@ function is_permission_duplicate(user_or_group_name)
   // was not working.  Not sure why would seem better
   // rather than setting this flag var
   return (flag ? true : false);
+}
+
+function preg_quote( str ) {
+  // http://kevin.vanzonneveld.net
+  // +   original by: booeyOH
+  // +   improved by: Ates Goral (http://magnetiq.com)
+  // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  // +   bugfixed by: Onno Marsman
+  // *     example 1: preg_quote("$40");
+  // *     returns 1: '\$40'
+  // *     example 2: preg_quote("*RRRING* Hello?");
+  // *     returns 2: '\*RRRING\* Hello\?'
+  // *     example 3: preg_quote("\\.+*?[^]$(){}=!<>|:");
+  // *     returns 3: '\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:'
+
+  return (str+'').replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, "\\$1");
 }
