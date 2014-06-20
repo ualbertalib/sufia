@@ -1,0 +1,15 @@
+<% if curation_concern.persisted? && curation_concern.members.present? %>
+  <div id="descriptions_display">
+    <h2 class="non lower">Representative File</h2>
+    <div class="well">
+      <div class="row">
+        <div class="col-md-12">
+          <fieldset id="representative-image">
+            <p>Select the file whose thumbnail should represent this Collection.</p>
+            <%= f.select( :representative, Hash[ curation_concern.members.map {|file| [file.title.first, file.pid] } ],{include_blank:"- Select one -"}, { class: 'form-control' } ) %>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

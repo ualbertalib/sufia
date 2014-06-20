@@ -21,4 +21,8 @@ describe Collection do
      @collection.title = nil
      expect{ @collection.save! }.to raise_error(ActiveFedora::RecordInvalid)
   end
+
+  it 'has a representative' do
+    expect(subject.respond_to?(:representative)).to eq true
+  end
 end

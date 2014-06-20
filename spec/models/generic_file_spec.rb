@@ -112,6 +112,12 @@ describe GenericFile do
 
   end
 
+  describe 'representative' do
+    it 'returns the noid' do
+      expect(subject.representative).to eq subject.noid
+    end
+  end
+
   describe "attributes" do
     it "should have rightsMetadata" do
       subject.rightsMetadata.should be_instance_of ParanoidRightsDatastream

@@ -28,6 +28,12 @@ module Sufia
       attr_accessible *(terms_for_display + [:part_of, :permissions])
     end
 
+    # Returns the current object's id (because a GenericFile is its own representative)
+    # This allows nested collections & works to recursively find the underlying representative file
+    def representative
+      self.to_param
+    end
+
     def persistent_url
       "#{Sufia.config.persistent_hostpath}#{noid}"
     end

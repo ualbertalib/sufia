@@ -1,33 +1,34 @@
-<% if @generic_file.image? %>
+<% generic_file ||= @generic_file %>
+<% if generic_file.image? %>
 
-  <%= render_download_icon "Download the full-sized image" %>
+  <%= render_download_icon "Download the full-sized image", generic_file %>
 
-<% elsif @generic_file.video? %>
+<% elsif generic_file.video? %>
   
   <video controls="controls" class="video-js vjs-default-skin" data-setup="{}" preload="auto">
-    <source src="<%= sufia.download_path(@generic_file, datastream_id: 'webm') %>" type="video/webm" />
-    <source src="<%= sufia.download_path(@generic_file, datastream_id: 'mp4') %>" type="video/mp4" />
+    <source src="<%= sufia.download_path(generic_file, datastream_id: 'webm') %>" type="video/webm" />
+    <source src="<%= sufia.download_path(generic_file, datastream_id: 'mp4') %>" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
 
-<% elsif @generic_file.audio? %>
+<% elsif generic_file.audio? %>
     
   <audio controls="controls" class="audiojs" preload="auto">
-    <source src="<%= sufia.download_path(@generic_file, datastream_id: 'ogg') %>" type="audio/ogg" />
-    <source src="<%= sufia.download_path(@generic_file, datastream_id: 'mp3') %>" type="audio/mpeg" />
+    <source src="<%= sufia.download_path(generic_file, datastream_id: 'ogg') %>" type="audio/ogg" />
+    <source src="<%= sufia.download_path(generic_file, datastream_id: 'mp3') %>" type="audio/mpeg" />
     Your browser does not support the audio tag.
   </audio>
 
-<% elsif @generic_file.pdf?%>
+<% elsif generic_file.pdf?%>
 
-  <%= render_download_icon "Download the full-sized PDF" %>
+  <%= render_download_icon "Download the full-sized PDF", generic_file %>
 
-<% elsif @generic_file.office_document?%>
+<% elsif generic_file.office_document?%>
 
-    <%= render_download_icon "Download the full-sized Document" %>
+    <%= render_download_icon "Download the full-sized Document", generic_file %>
 
 <% else %>
-
-  <%= render_download_icon %>
+  <% @generic_file ||= generic_file %>
+  <%= render_download_icon nil, generic_file %>
   
 <% end %>

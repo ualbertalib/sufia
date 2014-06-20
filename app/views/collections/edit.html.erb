@@ -8,7 +8,7 @@
 <% unless has_collection_search_parameters? %>
   <div class="row">
     <div class="col-xs-12 col-sm-4">
-      <%= render partial: 'collections/media_display', locals: { collection: @collection } %>
+      <%= render partial: 'collections/representative_media', locals: { curation_concern: @collection } %>
     </div>
     <div class="col-xs-12 col-sm-8"><!-- class="column second"> -->
       <%= render partial: 'collections/edit_actions' %>

@@ -1,0 +1,8 @@
+<% if curation_concern.representative.present? && (gf = GenericFile.load_instance_from_solr(curation_concern.representative)) %>
+  <%= render partial: 'generic_files/media_display', locals: {generic_file: gf, dom_class_name: 'representative_image'} %>
+<% elsif curation_concern.representative.present? %>
+  <%= image_tag download_path(curation_concern.representative, {:datastream_id => 'thumbnail'}), class: 'representative_image' %>
+<% else %>
+  <a href="<%= collections.collection_path %>" target="_new"><img src="/assets/folder.png" alt="No preview available" width="100%" /></a>
+<% end %>
+

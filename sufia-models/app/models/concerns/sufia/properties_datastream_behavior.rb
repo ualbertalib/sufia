@@ -10,6 +10,7 @@ module Sufia
         # This is where we put the relative path of the file if submitted as a folder
         t.relative_path
         t.import_url path: 'importUrl', index_as: :symbol
+        t.representative
       end
     end
 

@@ -40,6 +40,10 @@ module Sufia
       self[Solrizer.solr_name('noid', Sufia::GenericFile.noid_indexer)]
     end
 
+    def representative
+      Array(self[Solrizer.solr_name('representative', :stored_searchable)]).first
+    end
+
     def date_uploaded
       field = self[Solrizer.solr_name("desc_metadata__date_uploaded", :stored_sortable, type: :date)]
       return unless field.present?

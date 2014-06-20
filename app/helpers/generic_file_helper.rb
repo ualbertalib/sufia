@@ -20,11 +20,11 @@ module GenericFileHelper
     render_edit_field_partial_with_action('batch_edit', key, locals)
   end
 
-  def render_download_icon title = nil
+  def render_download_icon title = nil, generic_file=@generic_file
     if title.nil?
-      link_to download_image_tag, sufia.download_path(@generic_file.id), { target: "_blank", title: "Download the document", id: "file_download", data: { label: @generic_file.id } }
+      link_to download_image_tag(title, generic_file), sufia.download_path(generic_file.id), { target: "_blank", title: "Download the document", id: "file_download", data: { label: generic_file.id } }
     else
-      link_to (download_image_tag(title) + title), sufia.download_path(@generic_file), { target: "_blank", title: title, id: "file_download", data: { label: @generic_file.id } }
+      link_to (download_image_tag(title, generic_file) + title), sufia.download_path(generic_file), { target: "_blank", title: title, id: "file_download", data: { label: generic_file.id } }
     end
   end
 
@@ -67,11 +67,11 @@ module GenericFileHelper
     end
   end
 
-  def download_image_tag title = nil
+  def download_image_tag title = nil, generic_file=@generic_file
     if title.nil?
       image_tag "default.png", { alt: "No preview available", class: "img-responsive" }
     else
-      image_tag sufia.download_path(@generic_file, datastream_id: 'thumbnail'), { class: "img-responsive", alt: "#{title} of #{@generic_file.title.first}" }
+      image_tag sufia.download_path(generic_file, datastream_id: 'thumbnail'), { class: "img-responsive", alt: "#{title} of #{generic_file.title.first}" }
     end
   end
 end
