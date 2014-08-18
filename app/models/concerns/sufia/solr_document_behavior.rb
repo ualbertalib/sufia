@@ -78,6 +78,11 @@ module Sufia
       Array(self[Solrizer.solr_name("desc_metadata__creator")]).first
     end
 
+    # META: add mediator
+    def mediator
+      Array(self[Solrizer.solr_name("desc_metadata__mediator")]).first
+    end
+
     def tags
       Array(self[Solrizer.solr_name("desc_metadata__tag")])
     end

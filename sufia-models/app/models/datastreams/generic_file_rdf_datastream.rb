@@ -9,6 +9,10 @@ class GenericFileRdfDatastream < ActiveFedora::NtriplesRDFDatastream
   property :creator, predicate: RDF::DC.creator do |index|
     index.as :stored_searchable, :facetable
   end
+  # META: add mediator
+  property :mediator, predicate: RDF::DC.mediator do |index|
+    index.as :stored_searchable, :facetable
+  end
   property :contributor, predicate: RDF::DC.contributor do |index|
     index.as :stored_searchable, :facetable
   end
