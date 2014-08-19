@@ -34,7 +34,7 @@ module Sufia
       module ClassMethods
         # META: add mediator
         def terms_for_display
-          [:resource_type, :title, :creator, :mediator, :coverage, :contributor, :description, :tag, :rights, :publisher, :date_created,
+          [:resource_type, :title, :creator, :source, :mediator, :coverage, :contributor, :description, :tag, :rights, :publisher, :date_created,
            :subject, :language, :identifier, :based_near, :related_url]
         end
       end

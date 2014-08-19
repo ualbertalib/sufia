@@ -61,6 +61,8 @@ class GenericFileRdfDatastream < ActiveFedora::NtriplesRDFDatastream
   property :bibliographic_citation, predicate: RDF::DC.bibliographicCitation do |index|
     index.as :stored_searchable
   end
+  
+  # META: add source, required field
   property :source, predicate: RDF::DC.source do |index|
     index.as :stored_searchable
   end

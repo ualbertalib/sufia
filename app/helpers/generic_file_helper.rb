@@ -4,8 +4,9 @@ module GenericFileHelper
     gf.to_s
   end
 
+  # META: add source, required field
   def required?(key)
-    [:title, :creator, :tag, :rights].include?(key)
+    [:title, :creator, :tag, :rights, :source].include?(key)
   end
 
   def render_show_field_partial(key, locals)

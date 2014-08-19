@@ -78,6 +78,11 @@ module Sufia
       Array(self[Solrizer.solr_name("desc_metadata__creator")]).first
     end
 
+    # META: add source, required field
+    def source
+      Array(self[Solrizer.solr_name("desc_metadata__source")]).first
+    end
+
     # META: add mediator
     def mediator
       Array(self[Solrizer.solr_name("desc_metadata__mediator")]).first

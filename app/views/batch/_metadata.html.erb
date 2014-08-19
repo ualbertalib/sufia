@@ -56,6 +56,18 @@
       <div id="additional_creator_elements"></div>
     </div>
 
+	<!-- META: add source, required field -->
+    <div class="form-group">
+      <%= f.label :source, "<span class='error'>*</span> Source".html_safe, class: "control-label" %>
+      <div id="additional_source_clone">
+        <%= f.text_field :source, name: "generic_file[source][]", value: "", required: true %>
+          <button class="adder btn" name="additional_source" id="additional_source_submit">+<span class="sr-only">add another Source</span></button>
+          &nbsp;
+          <%= help_icon(:source) %>
+      </div>
+      <div id="additional_source_elements"></div>
+    </div>
+
     <div class="form-group">
       <%= f.label :rights, '<span class="error">*</span> Rights'.html_safe, class: "control-label" %>
       <div id="additional_rights_clone">

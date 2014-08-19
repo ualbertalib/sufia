@@ -11,8 +11,8 @@ module Sufia
 
         has_attributes :relative_path, :depositor, :import_url, datastream: :properties, multiple: false
         has_attributes :date_uploaded, :date_modified, datastream: :descMetadata, multiple: false
-        # META: add mediator
-        has_attributes :related_url, :based_near, :part_of, :creator, 
+        # META: add mediator and source required field
+        has_attributes :related_url, :based_near, :part_of, :creator, :source,
                                     :mediator, :coverage, :contributor, :title, :tag, :description, :rights,
                                     :publisher, :date_created, :subject,
                                     :resource_type, :identifier, :language, datastream: :descMetadata, multiple: true
