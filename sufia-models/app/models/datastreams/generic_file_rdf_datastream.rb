@@ -13,6 +13,9 @@ class GenericFileRdfDatastream < ActiveFedora::NtriplesRDFDatastream
   property :mediator, predicate: RDF::DC.mediator do |index|
     index.as :stored_searchable, :facetable
   end
+  property :coverage, predicate: RDF::DC.coverage do |index|
+    index.as :stored_searchable, :facetable
+  end
   property :contributor, predicate: RDF::DC.contributor do |index|
     index.as :stored_searchable, :facetable
   end

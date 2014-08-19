@@ -83,6 +83,10 @@ module Sufia
       Array(self[Solrizer.solr_name("desc_metadata__mediator")]).first
     end
 
+    def coverage
+      Array(self[Solrizer.solr_name("desc_metadata__coverage")]).first
+    end
+
     def tags
       Array(self[Solrizer.solr_name("desc_metadata__tag")])
     end
