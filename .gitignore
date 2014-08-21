@@ -79,9 +79,6 @@ public/plugin_assets/
 
 db/schema.rb
 
-.project
-.buildpath
-
 /.bundle
 /.yardoc
 /doc
