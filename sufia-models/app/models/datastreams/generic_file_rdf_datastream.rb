@@ -9,10 +9,15 @@ class GenericFileRdfDatastream < ActiveFedora::NtriplesRDFDatastream
   property :creator, predicate: RDF::DC.creator do |index|
     index.as :stored_searchable, :facetable
   end
+  # META: add source
+  property :source, predicate: RDF::DC.source do |index|
+    index.as :stored_searchable
+  end
   # META: add mediator
   property :mediator, predicate: RDF::DC.mediator do |index|
     index.as :stored_searchable, :facetable
   end
+  # META: add coverage
   property :coverage, predicate: RDF::DC.coverage do |index|
     index.as :stored_searchable, :facetable
   end
@@ -59,11 +64,6 @@ class GenericFileRdfDatastream < ActiveFedora::NtriplesRDFDatastream
     index.as :stored_searchable
   end
   property :bibliographic_citation, predicate: RDF::DC.bibliographicCitation do |index|
-    index.as :stored_searchable
-  end
-  
-  # META: add source, required field
-  property :source, predicate: RDF::DC.source do |index|
     index.as :stored_searchable
   end
 
