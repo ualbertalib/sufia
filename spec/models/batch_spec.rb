@@ -34,5 +34,15 @@ describe Batch do
         expect(Batch.find_or_create("batch-123")).to eq "the batch"
       end
     end
+    describe "when the object is being created and used by many processes" do
+      it "should create and be reused" do
+        batch_id = ActiveFedora::Noid::Service.new.mint 
+        2.times do |i|
+          fork { expect { Batch.find_or_create(batch_id) }.to_not raise_error }
+          sleep 0.04
+        end
+        wait
+      end
+    end
   end
 end
