@@ -196,7 +196,11 @@ module Sufia
       end
 
       def actor
-        @actor ||= Sufia::GenericFile::Actor.new(@generic_file, current_user)
+        @actor ||= Sufia::GenericFile::Actor.new(@generic_file, current_user, attributes)
+      end
+
+      def attributes
+        attributes = params
       end
 
       def update_version
