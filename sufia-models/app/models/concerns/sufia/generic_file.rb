@@ -22,7 +22,7 @@ module Sufia
     include Sufia::GenericFile::Batches
     include Sufia::GenericFile::Indexing
     include Sufia::GenericFile::Querying
-    include Hydra::AccessControls::Embargoable
+    include Sufia::AccessControls::Embargoable
     include Hydra::AccessControls::WithAccessRight
   end
 end
