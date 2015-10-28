@@ -1,7 +1,7 @@
 class ContentBlock < ActiveRecord::Base
-
   MARKETING  = 'marketing_text'
   RESEARCHER = 'featured_researcher'
+  ANNOUNCEMENT = 'announcement_text'
 
   def self.recent_researchers
     where(name: RESEARCHER).order('created_at DESC')
@@ -18,5 +18,4 @@ class ContentBlock < ActiveRecord::Base
   def external_key_name
     self.class.external_keys.fetch(name) { 'External Key' }
   end
-
 end

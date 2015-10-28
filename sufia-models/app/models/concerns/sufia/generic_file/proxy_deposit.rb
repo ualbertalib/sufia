@@ -16,7 +16,6 @@ module Sufia
         after_create :create_transfer_request
       end
 
-
       def create_transfer_request
         Sufia.queue.push(ContentDepositorChangeEventJob.new(id, on_behalf_of)) if on_behalf_of.present?
       end
@@ -24,7 +23,7 @@ module Sufia
       def request_transfer_to(target)
         raise ArgumentError, "Must provide a target" unless target
         deposit_user = ::User.find_by_user_key(depositor)
-        ProxyDepositRequest.create!(pid: id, receiving_user: target, sending_user: deposit_user)
+        ProxyDepositRequest.create!(generic_file_id: id, receiving_user: target, sending_user: deposit_user)
       end
     end
   end

@@ -1,7 +1,5 @@
-# Returns an array containing the vhost 'CoSign service' value and URL
 Sufia.config do |config|
-
-  config.fits_to_desc_mapping= {
+  config.fits_to_desc_mapping = {
     file_title: :title,
     file_author: :creator
   }
@@ -44,7 +42,7 @@ Sufia.config do |config|
     "Research Paper" => "Research Paper",
     "Software or Program Code" => "Software or Program Code",
     "Video" => "Video",
-    "Other" => "Other",
+    "Other" => "Other"
   }
 
   config.resource_types_to_schema = {
@@ -67,11 +65,11 @@ Sufia.config do |config|
     "Research Paper" => "http://schema.org/ScholarlyArticle",
     "Software or Program Code" => "http://schema.org/Code",
     "Video" => "http://schema.org/VideoObject",
-    "Other" => "http://schema.org/CreativeWork",
+    "Other" => "http://schema.org/CreativeWork"
   }
 
   config.permission_levels = {
-    "Choose Access"=>"none",
+    "Choose Access" => "none",
     "View/Download" => "read",
     "Edit" => "edit"
   }
@@ -93,6 +91,14 @@ Sufia.config do |config|
   # Specify a date you wish to start collecting Google Analytic statistics for.
   # config.analytic_start_date = DateTime.new(2014,9,10)
 
+  # Enables a link to the citations page for a generic_file.
+  # Default is false
+  # config.citations = false
+
+  # Enables a select menu on the batch upload page to select a collection into which to add newly uploaded files.
+  # Default is false
+  # config.upload_to_collection = false
+
   # Where to store tempfiles, leave blank for the system temp directory (e.g. /tmp)
   # config.temp_file_base = '/home/developer1'
 
@@ -109,6 +115,13 @@ Sufia.config do |config|
   # Specify a different template for your repository's NOID IDs
   # config.noid_template = ".reeddeeddk"
 
+  # Store identifier minter's state in a file for later replayability
+  # config.minter_statefile = '/tmp/minter-state'
+
+  # Process for translating Fedora URIs to identifiers and vice versa
+  # config.translate_uri_to_id = ActiveFedora::Noid.config.translate_uri_to_id
+  # config.translate_id_to_uri = ActiveFedora::Noid.config.translate_id_to_uri
+
   # Specify the prefix for Redis keys:
   # config.redis_namespace = "sufia"
 
@@ -118,15 +131,14 @@ Sufia.config do |config|
   # Specify how many seconds back from the current time that we should show by default of the user's activity on the user's dashboard
   # config.activity_to_show_default_seconds_since_now = 24*60*60
 
+  # Sufia can integrate with Zotero's Arkivo service for automatic deposit
+  # of Zotero-managed research items.
+  # config.arkivo_api = false
+
   # Specify a date you wish to start collecting Google Analytic statistics for.
   # Leaving it blank will set the start date to when ever the file was uploaded by
   # NOTE: if you have always sent analytics to GA for downloads and page views leave this commented out
   # config.analytic_start_date = DateTime.new(2014,9,10)
-  #
-  # Method of converting pids into URIs for storage in Fedora
-  # config.translate_uri_to_id = lambda { |uri| uri.to_s.split('/')[-1] }
-  # config.translate_id_to_uri = lambda { |id|
-  #      "#{ActiveFedora.fedora.host}#{ActiveFedora.fedora.base_path}/#{Sufia::Noid.treeify(id)}" }
 
   # If browse-everything has been configured, load the configs.  Otherwise, set to nil.
   begin
@@ -138,7 +150,6 @@ Sufia.config do |config|
   rescue Errno::ENOENT
     config.browse_everything = nil
   end
-
 end
 
 Date::DATE_FORMATS[:standard] = "%m/%d/%Y"

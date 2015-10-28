@@ -1,8 +1,7 @@
 module My
   class FilesController < MyController
-
-    self.solr_search_params_logic += [
-      :show_only_files_deposited_by_current_user,
+    self.search_params_logic += [
+      :show_only_resources_deposited_by_current_user,
       :show_only_generic_files
     ]
 
@@ -12,10 +11,9 @@ module My
     end
 
     protected
-    
-    def search_action_url *args
-      sufia.dashboard_files_url *args
-    end
-  
+
+      def search_action_url(*args)
+        sufia.dashboard_files_url(*args)
+      end
   end
 end

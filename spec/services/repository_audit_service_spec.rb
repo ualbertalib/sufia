@@ -10,9 +10,13 @@ describe Sufia::RepositoryAuditService do
   end
 
   describe "#audit_everything" do
-    it "should audit everything" do
-      expect_any_instance_of(GenericFile).to receive(:audit)
-      Sufia::RepositoryAuditService.audit_everything
+    it "audits everything" do
+      # check that the method we are mocking still exists
+      expect(Sufia::GenericFileAuditService.new(nil)).to respond_to(:audit)
+
+      # make sure the audit gets called
+      expect_any_instance_of(Sufia::GenericFileAuditService).to receive(:audit)
+      described_class.audit_everything
     end
   end
 end

@@ -1,36 +1,34 @@
 require 'spec_helper'
 
-describe 'generic_files/show.html.erb', :type => :view do
-  let(:depositor) {
+describe 'generic_files/show.html.erb', type: :view do
+  let(:depositor) do
     stub_model(User,
-      user_key: 'bob',
-      twitter_handle: 'bot4lib')
-  }
-
-  let(:content) do
-    content = double('content', versions: [], mimeType: 'application/pdf')
+               user_key: 'bob',
+               twitter_handle: 'bot4lib')
   end
+
+  let(:content) { double('content', versions: [], mimeType: 'application/pdf') }
 
   let(:generic_file) do
     stub_model(GenericFile, id: '123',
-      depositor: depositor.user_key,
-      audit_stat: 1,
-      title: ['My Title'],
-      description: ['Lorem ipsum lorem ipsum.'],
-      tag: ['bacon', 'sausage', 'eggs'],
-      rights: ['http://example.org/rights/1'],
-      based_near: ['Seattle, WA, US'],
-      contributor: ['Tweedledee', 'Tweedledum'],
-      creator: ['Doe, John', 'Doe, Jane'],
-      date_created: ['1984-01-02'],
-      language: ['Quechua'],
-      publisher: ['Random Publishing, Inc.'],
-      subject: ['Biology', 'Physiology', 'Ethnography'])
+                            depositor: depositor.user_key,
+                            audit_stat: 1,
+                            title: ['My Title'],
+                            description: ['Lorem ipsum lorem ipsum. http://my.link.com'],
+                            tag: ['bacon', 'sausage', 'eggs'],
+                            rights: ['http://example.org/rights/1'],
+                            based_near: ['Seattle, WA, US'],
+                            contributor: ['Tweedledee', 'Tweedledum'],
+                            creator: ['Doe, John', 'Doe, Jane'],
+                            date_created: ['1984-01-02'],
+                            language: ['Quechua'],
+                            publisher: ['Random Publishing, Inc.'],
+                            subject: ['Biology', 'Physiology', 'Ethnography'])
   end
 
-  let(:presenter) {
+  let(:presenter) do
     Sufia::GenericFilePresenter.new(generic_file)
-  }
+  end
 
   before do
     allow(generic_file).to receive(:content).and_return(content)
@@ -45,6 +43,28 @@ describe 'generic_files/show.html.erb', :type => :view do
     assign(:notify_number, 0)
   end
 
+  describe 'title heading' do
+    before do
+      render template: 'generic_files/show.html.erb', layout: 'layouts/sufia-one-column'
+    end
+    let(:doc) { Nokogiri::HTML(rendered) }
+
+    it 'shows the first title' do
+      h1 = doc.xpath("//h1[@class='visibility']").text
+      expect(h1).to start_with 'My Title'
+    end
+
+    it 'shows the description' do
+      d1 = doc.xpath("//p[@class='genericfile_description']").text
+      expect(d1).to start_with 'Lorem ipsum'
+    end
+
+    it 'shows links in the description' do
+      a1 = doc.xpath("//p[@class='genericfile_description']/a").text
+      expect(a1).to start_with 'http://my.link.com'
+    end
+  end
+
   describe 'schema.org' do
     let(:item) { Mida::Document.new(rendered).items.first }
     describe 'descriptive metadata' do
@@ -55,11 +75,6 @@ describe 'generic_files/show.html.erb', :type => :view do
       it 'draws schema.org fields' do
         # set itemtype to CreativeWork
         expect(item.type).to eq('http://schema.org/CreativeWork')
-
-        # set title as name
-        expect(item.properties['name'].first).to eq('My Title')
-
-        expect(item.properties['description'].first).to eq('Lorem ipsum lorem ipsum.')
 
         # tag as keywords
         expect(item.properties['keywords']).to include('bacon', 'sausage', 'eggs')
@@ -98,29 +113,6 @@ describe 'generic_files/show.html.erb', :type => :view do
         depositor = item.properties['accountablePerson'].first
         expect(depositor.type).to eq('http://schema.org/Person')
         expect(depositor.properties['name'].first).to eq('bob')
-      end
-    end
-
-    describe 'resource type-specific itemtypes' do
-      before do
-          generic_file.resource_type = type
-          render template: 'generic_files/show.html.erb', layout: 'layouts/sufia-one-column'
-      end
-
-      context 'when resource_type is Audio' do
-        let(:type) { ['Audio'] }
-
-        it 'sets itemtype to AudioObject' do
-          expect(item.type).to eq('http://schema.org/AudioObject')
-        end
-      end
-
-      context 'when resource_type is Conference Proceeding' do
-        let(:type) { ['Conference Proceeding'] }
-
-        it 'sets itemtype to ScholarlyArticle' do
-          expect(item.type).to eq('http://schema.org/ScholarlyArticle')
-        end
       end
     end
   end
@@ -179,7 +171,7 @@ describe 'generic_files/show.html.erb', :type => :view do
       expect(tag.attribute('content').value).to eq('My Title')
 
       tag = doc.xpath("//meta[@property='og:description']")
-      expect(tag.attribute('content').value).to eq('Lorem ipsum lorem ipsum.')
+      expect(tag.attribute('content').value).to eq('Lorem ipsum lorem ipsum. http://my.link.com')
 
       tag = doc.xpath("//meta[@property='og:image']")
       expect(tag.attribute('content').value).to eq('http://test.host/downloads/123?file=thumbnail')
@@ -224,6 +216,29 @@ describe 'generic_files/show.html.erb', :type => :view do
     end
   end
 
+  describe 'citations' do
+    let(:page) { Capybara::Node::Simple.new(rendered) }
+    before do
+      Sufia.config.citations = citations
+      render
+    end
+    context 'when enabled' do
+      let(:citations) { true }
+
+      it 'appears on page' do
+        expect(page).to have_selector('a#citations', count: 1)
+      end
+    end
+
+    context 'when disabled' do
+      let(:citations) { false }
+
+      it 'does not appear on page' do
+        expect(page).to have_no_selector('a#citations')
+      end
+    end
+  end
+
   describe 'featured' do
     before do
       allow(generic_file).to receive(:public?).and_return(public)
@@ -256,15 +271,15 @@ describe 'generic_files/show.html.erb', :type => :view do
 
     context "when the file is not featured in any collections" do
       let(:collections) { [] }
-      it "should display the empty message" do
+      it "displays the empty message" do
         expect(rendered).to have_text(t('sufia.file.collections_list.empty'))
       end
     end
 
     context "when the file is featured in collections" do
-      let(:collections) { [stub_model(Collection, title: 'collection1', id: '456') ] }
+      let(:collections) { [stub_model(Collection, title: 'collection1', id: '456')] }
 
-      it "should display the header and titles of collections it belongs to" do
+      it "displays the header and titles of collections it belongs to" do
         expect(rendered).to have_text(t('sufia.file.collections_list.heading'))
         expect(rendered).to have_text('collection1')
       end
@@ -275,9 +290,8 @@ describe 'generic_files/show.html.erb', :type => :view do
     before do
       render
     end
-    it "should display the visibility badge" do
-      expect(rendered).to include('<span class="label label-danger" title="'+t('sufia.visibility.private')+'">'+t('sufia.visibility.private')+'</span></a>')
+    it "displays the visibility badge" do
+      expect(rendered).to include('<span class="label label-danger" title="' + t('sufia.visibility.private_title_attr') + '">' + t('sufia.visibility.private') + '</span></a>')
     end
   end
-
 end

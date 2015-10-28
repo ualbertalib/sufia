@@ -1,5 +1,4 @@
 Sufia::Engine.routes.draw do
-
   # Downloads controller route
   resources :homepage, only: 'index'
 
@@ -46,7 +45,7 @@ Sufia::Engine.routes.draw do
   # User profile & follows
   resources :users, only: [:index, :show, :edit, :update], as: :profiles do
     member do
-      post 'trophy' => 'users#toggle_trophy' #used by trophy.js
+      post 'trophy' => 'users#toggle_trophy' # used by trophy.js
       post 'follow' => 'users#follow'
       post 'unfollow' => 'users#unfollow'
     end
@@ -105,6 +104,21 @@ Sufia::Engine.routes.draw do
   post 'contact' => 'contact_form#create', as: :contact_form_index
   get 'contact' => 'contact_form#new'
 
+  # API routes
+  if Sufia.config.arkivo_api
+    namespace :api do
+      if defined?(Sufia::ArkivoConstraint)
+        constraints Sufia::ArkivoConstraint do
+          resources :items, except: [:index, :edit, :new], defaults: { format: :json }
+        end
+      end
+
+      get 'zotero' => 'zotero#initiate', as: :zotero_initiate
+      get 'zotero/callback' => 'zotero#callback', as: :zotero_callback
+    end
+  end
+
+  # Collections routes
   mount Hydra::Collections::Engine => '/'
 
   # Resque monitoring routes. Don't bother with this route unless Sufia::ResqueAdmin
@@ -117,14 +131,23 @@ Sufia::Engine.routes.draw do
     end
   end
 
+  if defined?(Sufia::StatsAdmin)
+    namespace :admin do
+      constraints Sufia::StatsAdmin do
+        get 'stats' => 'stats#index', as: :stats
+      end
+    end
+  end
+
   resources :content_blocks, only: ['create', 'update']
+  get 'featured_researchers' => 'content_blocks#index', as: :featured_researchers
   post '/tinymce_assets' => 'tinymce_assets#create'
 
   get 'about' => 'pages#show', id: 'about_page'
   # Static page routes (workaround)
   get ':action' => 'static#:action', constraints: { action: /help|terms|zotero|mendeley|agreement|subject_libraries|versions/ }, as: :static
 
-  #Single use link errors
+  # Single use link errors
   get 'single_use_link/not_found' => 'errors#single_use_error'
   get 'single_use_link/expired' => 'errors#single_use_error'
 
@@ -132,5 +155,4 @@ Sufia::Engine.routes.draw do
   unless Rails.env.development? || Rails.env.test?
     match '*error' => 'errors#routing', via: [:get, :post]
   end
-
 end

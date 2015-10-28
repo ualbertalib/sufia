@@ -26,17 +26,17 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake", "~> 10.3"
 
-  spec.add_dependency 'rails', '~> 4.0', '< 5.0.0'
+  spec.add_dependency 'rails', '~> 4.0'
   spec.add_dependency 'activeresource', "~> 4.0" # No longer a dependency of rails 4.0
 
-  spec.add_dependency "hydra-head", "~> 9.0.0.rc3"
-  spec.add_dependency "active-fedora", "~> 9.0.0.rc3"
-  spec.add_dependency "hydra-collections", "~> 4.0.0.rc3"
-  spec.add_dependency 'hydra-derivatives', '~> 1.0.0.rc1'
+  spec.add_dependency "hydra-head", "~> 9.0"
+  spec.add_dependency "active-fedora", "~> 9.4"
+  spec.add_dependency "hydra-collections", [">= 5.0.3", "< 6.0"]
+  spec.add_dependency 'hydra-derivatives', '~> 1.0'
+  spec.add_dependency 'active_fedora-noid', '~> 1.0'
   spec.add_dependency 'nest', '~> 1.1'
   spec.add_dependency 'resque', '~> 1.23'
   spec.add_dependency 'resque-pool', '~> 0.3'
-  spec.add_dependency 'noid', '~> 0.6'
   spec.add_dependency 'mailboxer', '~> 0.12'
   spec.add_dependency 'acts_as_follower', '>= 0.1.1', '< 0.3'
   spec.add_dependency 'carrierwave', '~> 0.9'
@@ -49,4 +49,5 @@ Gem::Specification.new do |spec|
   else
     spec.add_dependency 'mini_magick'
   end
+  spec.add_dependency 'posix-spawn'
 end

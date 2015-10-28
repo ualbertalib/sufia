@@ -8,29 +8,27 @@ require 'parslet'
 require 'parsing_nesting/tree'
 
 class CatalogController < ApplicationController
-  include Blacklight::Catalog
-  # Extend Blacklight::Catalog with Hydra behaviors (primarily editing).
+  include Hydra::Catalog
   include Hydra::Controller::ControllerBehavior
-  include BlacklightAdvancedSearch::ParseBasicQ
   include Sufia::Catalog
 
   # These before_filters apply the hydra access controls
   before_filter :enforce_show_permissions, only: :show
   # This applies appropriate access controls to all solr queries
-  CatalogController.solr_search_params_logic += [:add_access_controls_to_solr_params]
+  CatalogController.search_params_logic += [:add_access_controls_to_solr_params, :add_advanced_parse_q_to_solr]
 
   skip_before_filter :default_html_head
 
   def self.uploaded_field
-    solr_name('date_uploaded', :stored_sortable, type: :date)
+    solr_name('system_create', :stored_sortable, type: :date)
   end
 
   def self.modified_field
-    solr_name('date_modified', :stored_sortable, type: :date)
+    solr_name('system_modified', :stored_sortable, type: :date)
   end
 
   configure_blacklight do |config|
-    #Show gallery view
+    # Show gallery view
     config.view.gallery.partials = [:index_header, :index]
     config.view.slideshow.partials = [:index]
 
@@ -121,7 +119,7 @@ class CatalogController < ApplicationController
     # solr request handler? The one set in config[:default_solr_parameters][:qt],
     # since we aren't specifying it otherwise.
     config.add_search_field('all_fields', label: 'All Fields', include_in_advanced_search: false) do |field|
-      all_names = config.show_fields.values.map{|val| val.field}.join(" ")
+      all_names = config.show_fields.values.map(&:field).join(" ")
       title_name = solr_name("title", :stored_searchable)
       field.solr_parameters = {
         qf: "#{all_names} file_format_tesim all_text_timv",
@@ -304,7 +302,7 @@ class CatalogController < ApplicationController
     # whether the sort is ascending or descending (it must be asc or desc
     # except in the relevancy case).
     # label is key, solr field is value
-    config.add_sort_field "score desc, #{uploaded_field} desc", label: "relevance \u25BC"
+    config.add_sort_field "score desc, #{uploaded_field} desc", label: "relevance"
     config.add_sort_field "#{uploaded_field} desc", label: "date uploaded \u25BC"
     config.add_sort_field "#{uploaded_field} asc", label: "date uploaded \u25B2"
     config.add_sort_field "#{modified_field} desc", label: "date modified \u25BC"
@@ -314,5 +312,4 @@ class CatalogController < ApplicationController
     # mean") suggestion is offered.
     config.spell_max = 5
   end
-
 end

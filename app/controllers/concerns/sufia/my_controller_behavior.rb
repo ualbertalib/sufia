@@ -3,25 +3,22 @@ require 'blacklight/catalog'
 module Sufia
   module MyControllerBehavior
     extend ActiveSupport::Concern
-    include Blacklight::Catalog
+    include Hydra::Catalog
     include Hydra::BatchEditBehavior
     include Hydra::Collections::SelectsCollections
-  
+
     included do
       include Blacklight::Configurable
 
-      self.copy_blacklight_config_from(CatalogController)
+      copy_blacklight_config_from(CatalogController)
+      blacklight_config.search_builder_class = Sufia::MySearchBuilder
 
-      include BlacklightAdvancedSearch::ParseBasicQ
-      include BlacklightAdvancedSearch::Controller
-      
-      before_filter :authenticate_user!
-      before_filter :enforce_show_permissions, only: :show
-      before_filter :enforce_viewing_context_for_show_requests, only: :show
-      before_filter :find_collections, only: :index
+      before_action :authenticate_user!
+      before_action :enforce_show_permissions, only: :show
+      before_action :enforce_viewing_context_for_show_requests, only: :show
+      before_action :find_collections_with_edit_access, only: :index
 
-      # This applies appropriate access controls to all solr queries (the internal method of this is overidden bellow to only include edit files)
-      self.solr_search_params_logic += [:add_access_controls_to_solr_params]
+      self.search_params_logic += [:add_access_controls_to_solr_params, :add_advanced_parse_q_to_solr]
 
       layout 'sufia-dashboard'
     end
@@ -33,15 +30,19 @@ module Sufia
     end
 
     def index
-      (@response, @document_list) = get_search_results
+      (@response, @document_list) = search_results(params, search_params_logic)
       @user = current_user
       @events = @user.events(100)
-      @last_event_timestamp = @user.events.first[:timestamp].to_i || 0 rescue 0
+      @last_event_timestamp = begin
+                                @user.events.first[:timestamp].to_i || 0
+                              rescue
+                                0
+                              end
       @filters = params[:f] || []
 
       # set up some parameters for allowing the batch controls to show appropiately
       @max_batch_size = 80
-      count_on_page = @document_list.count {|doc| batch.index(doc.id)}
+      count_on_page = @document_list.count { |doc| batch.index(doc.id) }
       @disable_select_all = @document_list.count > @max_batch_size
       batch_size = batch.uniq.size
       @result_set_size = @response.response["numFound"]
@@ -51,33 +52,13 @@ module Sufia
       @batch_size_on_other_page = batch_size - count_on_page
       @batch_part_on_other_page = (@batch_size_on_other_page) > 0
 
+      @add_files_to_collection = params.fetch(:add_files_to_collection, '')
+
       respond_to do |format|
-        format.html { }
+        format.html {}
         format.rss  { render layout: false }
         format.atom { render layout: false }
       end
     end
-
-    protected
-
-    # show only files with edit permissions in lib/hydra/access_controls_enforcement.rb apply_gated_discovery
-    def discovery_permissions
-      ["edit"]
-    end
-
-    def show_only_files_deposited_by_current_user solr_parameters, user_parameters
-      solr_parameters[:fq] ||= []
-      solr_parameters[:fq] += [
-        ActiveFedora::SolrQueryBuilder.construct_query_for_rel(depositor: current_user.user_key)
-      ]
-    end
-
-    def show_only_generic_files solr_parameters, user_parameters
-      solr_parameters[:fq] ||= []
-      solr_parameters[:fq] += [
-        ActiveFedora::SolrQueryBuilder.construct_query_for_rel(has_model: ::GenericFile.to_class_uri)
-      ]
-    end
-
   end
 end

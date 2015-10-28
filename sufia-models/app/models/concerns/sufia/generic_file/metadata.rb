@@ -4,12 +4,13 @@ module Sufia
       extend ActiveSupport::Concern
 
       included do
-
         property :label, predicate: ActiveFedora::RDF::Fcrepo::Model.downloadFilename, multiple: false
 
         property :depositor, predicate: ::RDF::URI.new("http://id.loc.gov/vocabulary/relators/dpt"), multiple: false do |index|
           index.as :symbol, :stored_searchable
         end
+
+        property :arkivo_checksum, predicate: ::RDF::URI.new('http://scholarsphere.psu.edu/ns#arkivoChecksum'), multiple: false
 
         property :relative_path, predicate: ::RDF::URI.new('http://scholarsphere.psu.edu/ns#relativePath'), multiple: false
 
@@ -91,14 +92,7 @@ module Sufia
         rescue
           puts "tables for vocabularies missing"
         end
-      end
-
-      # Add a schema.org itemtype
-      def itemtype
-        # Look up the first non-empty resource type value in a hash from the config
-        Sufia.config.resource_types_to_schema[resource_type.to_a.reject { |type| type.empty? }.first] || 'http://schema.org/CreativeWork'
-      rescue
-        'http://schema.org/CreativeWork'
+        type ::RDF::URI.new('http://pcdm.org/models#Object')
       end
     end
   end

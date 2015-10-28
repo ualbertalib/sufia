@@ -1,21 +1,17 @@
 class FitsDatastream < ActiveFedora::OmDatastream
   include OM::XML::Document
 
-  def prefix(_)
-    ""
-  end
-
   set_terminology do |t|
     t.root(path: "fits",
            xmlns: "http://hul.harvard.edu/ois/xml/ns/fits/fits_output",
            schema: "http://hul.harvard.edu/ois/xml/xsd/fits/fits_output.xsd")
-    t.identification {
-      t.identity {
-        t.format_label(path: {attribute: "format"})
-        t.mime_type(path: {attribute: "mimetype"}, index_as: [:stored_searchable])
-      }
-    }
-    t.fileinfo {
+    t.identification do
+      t.identity do
+        t.format_label(path: { attribute: "format" })
+        t.mime_type(path: { attribute: "mimetype" })
+      end
+    end
+    t.fileinfo do
       t.file_size(path: "size")
       t.last_modified(path: "lastmodified")
       t.filename(path: "filename")
@@ -23,14 +19,14 @@ class FitsDatastream < ActiveFedora::OmDatastream
       t.rights_basis(path: "rightsBasis")
       t.copyright_basis(path: "copyrightBasis")
       t.copyright_note(path: "copyrightNote")
-    }
-    t.filestatus {
+    end
+    t.filestatus do
       t.well_formed(path: "well-formed")
       t.valid(path: "valid")
       t.status_message(path: "message")
-    }
-    t.metadata {
-      t.document {
+    end
+    t.metadata do
+      t.document do
         t.file_title(path: "title")
         t.file_author(path: "author")
         t.file_language(path: "language")
@@ -41,8 +37,8 @@ class FitsDatastream < ActiveFedora::OmDatastream
         t.line_count(path: "lineCount")
         t.table_count(path: "tableCount")
         t.graphics_count(path: "graphicsCount")
-      }
-      t.image {
+      end
+      t.image do
         t.byte_order(path: "byteOrder")
         t.compression(path: "compressionScheme")
         t.width(path: "imageWidth")
@@ -59,28 +55,28 @@ class FitsDatastream < ActiveFedora::OmDatastream
         t.gps_timestamp(path: "gpsTimeStamp")
         t.latitude(path: "gpsDestLatitude")
         t.longitude(path: "gpsDestLongitude")
-      }
-      t.text {
+      end
+      t.text do
         t.character_set(path: "charset")
         t.markup_basis(path: "markupBasis")
         t.markup_language(path: "markupLanguage")
-      }
-      t.audio {
+      end
+      t.audio do
         t.duration(path: "duration")
         t.bit_depth(path: "bitDepth")
         t.sample_rate(path: "sampleRate")
         t.channels(path: "channels")
         t.data_format(path: "dataFormatType")
         t.offset(path: "offset")
-      }
-      t.video {
+      end
+      t.video do
         t.width(path: "imageWidth")
         t.height(path: "imageHeight")
         t.duration(path: "duration")
         t.sample_rate(path: "sampleRate")
         t.frame_rate(path: "frameRate")
-      }
-    }
+      end
+    end
     t.format_label(proxy: [:identification, :identity, :format_label])
     t.mime_type(proxy: [:identification, :identity, :mime_type])
     t.file_size(proxy: [:fileinfo, :file_size])
@@ -106,7 +102,7 @@ class FitsDatastream < ActiveFedora::OmDatastream
     t.byte_order(proxy: [:metadata, :image, :byte_order])
     t.compression(proxy: [:metadata, :image, :compression])
     t.width(proxy: [:metadata, :image, :width])
-    t.video_width( proxy: [:metadata, :video, :width])
+    t.video_width(proxy: [:metadata, :video, :width])
     t.height(proxy: [:metadata, :image, :height])
     t.video_height(proxy: [:metadata, :video, :height])
     t.color_space(proxy: [:metadata, :image, :color_space])
@@ -143,44 +139,9 @@ class FitsDatastream < ActiveFedora::OmDatastream
     "http://hul.harvard.edu/ois/xml/ns/fits/fits_output
     http://hul.harvard.edu/ois/xml/xsd/fits/fits_output.xsd",
                version: "0.6.0",
-               timestamp: "1/25/12 11:04 AM") {
-        xml.identification {
-          xml.identity(format: '', mimetype: '',
-                       toolname: 'FITS', toolversion: '') {
-            xml.tool(toolname: '', toolversion: '')
-            xml.version(toolname: '', toolversion: '')
-            xml.externalIdentifier(toolname: '', toolversion: '')
-          }
-        }
-        xml.fileinfo {
-          xml.size(toolname: '', toolversion: '')
-          xml.creatingApplicatioName(toolname: '', toolversion: '',
-                                     status: '')
-          xml.lastmodified(toolname: '', toolversion: '', status: '')
-          xml.filepath(toolname: '', toolversion: '', status: '')
-          xml.filename(toolname: '', toolversion: '', status: '')
-          xml.md5checksum(toolname: '', toolversion: '', status: '')
-          xml.fslastmodified(toolname: '', toolversion: '', status: '')
-        }
-        xml.filestatus {
-          xml.tag! "well-formed", toolname: '', toolversion: '', status: ''
-          xml.valid(toolname: '', toolversion: '', status: '')
-        }
-        xml.metadata {
-          xml.document {
-            xml.title(toolname: '', toolversion: '', status: '')
-            xml.author(toolname: '', toolversion: '', status: '')
-            xml.pageCount(toolname: '', toolversion: '')
-            xml.isTagged(toolname: '', toolversion: '')
-            xml.hasOutline(toolname: '', toolversion: '')
-            xml.hasAnnotations(toolname: '', toolversion: '')
-            xml.isRightsManaged(toolname: '', toolversion: '',
-                                status: '')
-            xml.isProtected(toolname: '', toolversion: '')
-            xml.hasForms(toolname: '', toolversion: '', status: '')
-          }
-        }
-      }
+               timestamp: "1/25/12 11:04 AM") do
+        xml.identification { xml.identity(toolname: 'FITS') }
+      end
     end
     builder.doc
   end

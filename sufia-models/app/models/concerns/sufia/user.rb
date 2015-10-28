@@ -1,3 +1,5 @@
+require 'oauth'
+
 module Sufia::User
   extend ActiveSupport::Concern
 
@@ -33,8 +35,35 @@ module Sufia::User
     mount_uploader :avatar, AvatarUploader, mount_on: :avatar_file_name
     validates_with AvatarValidator
 
+    # Add token to authenticate Arkivo API calls
+    after_initialize :set_arkivo_token, unless: :persisted? if Sufia.config.arkivo_api
+
     has_many :trophies
     attr_accessor :update_directory
+  end
+
+  def zotero_token
+    self[:zotero_token].blank? ? nil : Marshal.load(self[:zotero_token])
+  end
+
+  def zotero_token=(value)
+    if value.blank?
+      # Resetting the token
+      self[:zotero_token] = value
+    else
+      self[:zotero_token] = Marshal.dump(value)
+    end
+  end
+
+  def set_arkivo_token
+    self.arkivo_token ||= token_algorithm
+  end
+
+  def token_algorithm
+    loop do
+      token = SecureRandom.base64(24)
+      return token if User.find_by(arkivo_token: token).nil?
+    end
   end
 
   # Coerce the ORCID into URL format
@@ -43,14 +72,14 @@ module Sufia::User
     #   1. validation has already flagged the ORCID as invalid
     #   2. the orcid field is blank
     #   3. the orcid is already in its normalized form
-    return if self.errors[:orcid].first.present? || self.orcid.blank? || self.orcid.starts_with?('http://orcid.org/')
-    bare_orcid = Sufia::OrcidValidator.match(self.orcid).string
+    return if errors[:orcid].first.present? || orcid.blank? || orcid.starts_with?('http://orcid.org/')
+    bare_orcid = Sufia::OrcidValidator.match(orcid).string
     self.orcid = "http://orcid.org/#{bare_orcid}"
   end
 
   # Format the json for select2 which requires just an id and a field called text.
   # If we need an alternate format we should probably look at a json template gem
-  def as_json(opts = nil)
+  def as_json(_opts = nil)
     { id: user_key, text: display_name ? "#{display_name} (#{user_key})" : user_key }
   end
 
@@ -60,42 +89,47 @@ module Sufia::User
   end
 
   def email_address
-    self.email
+    email
   end
 
   def name
-    self.display_name.titleize || raise
+    display_name.titleize || raise
   rescue
-    self.user_key
+    user_key
   end
 
   # Redefine this for more intuitive keys in Redis
   def to_param
-    # hack because rails doesn't like periods in urls.
+    # HACK: because rails doesn't like periods in urls.
     user_key.gsub(/\./, '-dot-')
   end
 
   def trophy_files
     trophies.map do |t|
-      ::GenericFile.load_instance_from_solr(t.generic_file_id)
-    end
+      begin
+        ::GenericFile.load_instance_from_solr(t.generic_file_id)
+      rescue ActiveFedora::ObjectNotFoundError
+        logger.error("Invalid trophy for user #{user_key} (generic file id #{t.generic_file_id})")
+        nil
+      end
+    end.compact
   end
 
   # method needed for messaging
-  def mailboxer_email(obj=nil)
+  def mailboxer_email(_obj = nil)
     nil
   end
 
   # The basic groups method, override or will fallback to Sufia::Ldap::User
   def groups
-    @groups ||= self.group_list ? self.group_list.split(";?;") : []
+    @groups ||= group_list ? group_list.split(";?;") : []
   end
 
   def ability
     @ability ||= ::Ability.new(self)
   end
 
-  def get_all_user_activity( since = DateTime.now.to_i - 8640)
+  def all_user_activity(since = DateTime.now.to_i - 8640)
     events = self.events.reverse.collect { |event| event if event[:timestamp].to_i > since }.compact
     profile_events = self.profile_events.reverse.collect { |event| event if event[:timestamp].to_i > since }.compact
     events.concat(profile_events).sort { |a, b| b[:timestamp].to_i <=> a[:timestamp].to_i }
@@ -112,7 +146,7 @@ module Sufia::User
 
     # Override this method if you aren't using email/password
     def audituser
-      User.find_by_user_key(audituser_key) || User.create!(Devise.authentication_keys.first => audituser_key, password: Devise.friendly_token[0,20])
+      User.find_by_user_key(audituser_key) || User.create!(Devise.authentication_keys.first => audituser_key, password: Devise.friendly_token[0, 20])
     end
 
     # Override this method if you aren't using email as the userkey
@@ -122,7 +156,7 @@ module Sufia::User
 
     # Override this method if you aren't using email/password
     def batchuser
-      User.find_by_user_key(batchuser_key) || User.create!(Devise.authentication_keys.first => batchuser_key, password: Devise.friendly_token[0,20])
+      User.find_by_user_key(batchuser_key) || User.create!(Devise.authentication_keys.first => batchuser_key, password: Devise.friendly_token[0, 20])
     end
 
     # Override this method if you aren't using email as the userkey
@@ -132,6 +166,11 @@ module Sufia::User
 
     def from_url_component(component)
       User.find_by_user_key(component.gsub(/-dot-/, '.'))
+    end
+
+    def recent_users(start_date, end_date = nil)
+      end_date ||= DateTime.now # doing or eq here so that if the user passes nil we still get now
+      User.where(created_at: start_date..end_date)
     end
   end
 end

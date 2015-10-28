@@ -45,7 +45,17 @@ module Sufia
       return unless field.present?
       begin
         Date.parse(field).to_formatted_s(:standard)
-      rescue
+      rescue ArgumentError
+        ActiveFedora::Base.logger.info "Unable to parse date: #{field.first.inspect} for #{self['id']}"
+      end
+    end
+
+    def create_date
+      field = self[CatalogController.uploaded_field]
+      return unless field.present?
+      begin
+        Date.parse(field).to_formatted_s(:standard)
+      rescue ArgumentError
         ActiveFedora::Base.logger.info "Unable to parse date: #{field.first.inspect} for #{self['id']}"
       end
     end
@@ -68,7 +78,7 @@ module Sufia
     end
 
     def file_format
-       Array(self[Solrizer.solr_name('file_format')]).first
+      Array(self[Solrizer.solr_name('file_format')]).first
     end
 
     def creator
@@ -102,6 +112,5 @@ module Sufia
     def collection?
       hydra_model == 'Collection'
     end
-
   end
 end

@@ -2,7 +2,6 @@ require 'spec_helper'
 require_relative '../../../sufia-models/lib/sufia/models/stats/user_stat_importer'
 
 describe Sufia::UserStatImporter do
-
   before do
     allow(Sufia.config).to receive(:analytic_start_date) { dates[0] }
     stub_out_call_to_google_analytics
@@ -10,6 +9,7 @@ describe Sufia::UserStatImporter do
 
   let(:bilbo) { FactoryGirl.create(:user, email: 'bilbo@example.com') }
   let(:frodo) { FactoryGirl.create(:user, email: 'frodo@example.com') }
+  let!(:gollum) { FactoryGirl.create(:user, email: 'gollum@example.com') }
 
   let!(:bilbo_file_1) do
     GenericFile.new(id: 'bilbo1').tap do |f|
@@ -32,20 +32,20 @@ describe Sufia::UserStatImporter do
     end
   end
 
-  let(:dates) {
+  let(:dates) do
     ldates = []
-    4.downto(0) {|idx| ldates << (Date.today-idx.day) }
+    4.downto(0) { |idx| ldates << (Date.today - idx.day) }
     ldates
-  }
+  end
 
-  let(:date_strs) {
+  let(:date_strs) do
     ldate_strs = []
-    dates.each {|date| ldate_strs << date.strftime("%Y%m%d") }
+    dates.each { |date| ldate_strs << date.strftime("%Y%m%d") }
     ldate_strs
-  }
+  end
 
   # This is what the data looks like that's returned from Google Analytics via the Legato gem.
-  let(:bilbo_file_1_pageview_stats) {
+  let(:bilbo_file_1_pageview_stats) do
     [
       OpenStruct.new(date: date_strs[0], pageviews: 1),
       OpenStruct.new(date: date_strs[1], pageviews: 2),
@@ -53,9 +53,9 @@ describe Sufia::UserStatImporter do
       OpenStruct.new(date: date_strs[3], pageviews: 4),
       OpenStruct.new(date: date_strs[4], pageviews: 5)
     ]
-  }
+  end
 
-  let(:bilbo_file_2_pageview_stats) {
+  let(:bilbo_file_2_pageview_stats) do
     [
       OpenStruct.new(date: date_strs[0], pageviews: 11),
       OpenStruct.new(date: date_strs[1], pageviews: 12),
@@ -63,9 +63,9 @@ describe Sufia::UserStatImporter do
       OpenStruct.new(date: date_strs[3], pageviews: 14),
       OpenStruct.new(date: date_strs[4], pageviews: 15)
     ]
-  }
+  end
 
-  let(:frodo_file_1_pageview_stats) {
+  let(:frodo_file_1_pageview_stats) do
     [
       OpenStruct.new(date: date_strs[0], pageviews: 2),
       OpenStruct.new(date: date_strs[1], pageviews: 4),
@@ -73,42 +73,41 @@ describe Sufia::UserStatImporter do
       OpenStruct.new(date: date_strs[3], pageviews: 1),
       OpenStruct.new(date: date_strs[4], pageviews: 9)
     ]
-  }
+  end
 
-  let(:bilbo_file_1_download_stats) {
+  let(:bilbo_file_1_download_stats) do
     [
       OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "bilbo1", date: date_strs[0], totalEvents: "2"),
       OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "bilbo1", date: date_strs[1], totalEvents: "3"),
       OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "bilbo1", date: date_strs[2], totalEvents: "5"),
       OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "bilbo1", date: date_strs[3], totalEvents: "3"),
-      OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "bilbo1", date: date_strs[4], totalEvents: "7"),
+      OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "bilbo1", date: date_strs[4], totalEvents: "7")
     ]
-  }
+  end
 
-  let(:bilbo_file_2_download_stats) {
+  let(:bilbo_file_2_download_stats) do
     [
       OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "bilbo2", date: date_strs[0], totalEvents: "1"),
       OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "bilbo2", date: date_strs[1], totalEvents: "4"),
       OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "bilbo2", date: date_strs[2], totalEvents: "3"),
       OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "bilbo2", date: date_strs[3], totalEvents: "2"),
-      OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "bilbo2", date: date_strs[4], totalEvents: "3"),
+      OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "bilbo2", date: date_strs[4], totalEvents: "3")
     ]
-  }
+  end
 
-  let(:frodo_file_1_download_stats) {
+  let(:frodo_file_1_download_stats) do
     [
       OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "frodo1", date: date_strs[0], totalEvents: "5"),
       OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "frodo1", date: date_strs[1], totalEvents: "4"),
       OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "frodo1", date: date_strs[2], totalEvents: "2"),
       OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "frodo1", date: date_strs[3], totalEvents: "1"),
-      OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "frodo1", date: date_strs[4], totalEvents: "6"),
+      OpenStruct.new(eventCategory: "Files", eventAction: "Downloaded", eventLabel: "frodo1", date: date_strs[4], totalEvents: "6")
     ]
-  }
-
+  end
 
   describe 'with empty cache' do
     it 'for each user it adds one entry per day to the cache' do
-      Sufia::UserStatImporter.new.import
+      described_class.new.import
 
       bilbos_stats = UserStat.where(user_id: bilbo.id).order(date: :asc)
       expect(bilbos_stats.count).to eq 4
@@ -132,6 +131,50 @@ describe Sufia::UserStatImporter do
 
       expect(UserStat.count).to eq bilbos_stats.count + frodos_stats.count
     end
+
+    context "when Google analytics throws an error" do
+      let(:importer) { described_class.new(number_of_retries: 4) }
+
+      context "both error out completely" do
+        before do
+          expect(FileDownloadStat).to receive(:ga_statistics).exactly(12).times.and_raise(StandardError.new("GA error"))
+          expect(FileViewStat).to receive(:ga_statistics).exactly(12).times.and_raise(StandardError.new("GA error"))
+        end
+
+        it "stops after 4 tries on each of the 3 files" do
+          importer.import
+          expect(UserStat.count).to eq 0
+        end
+      end
+
+      context "Only View stats error out completely" do
+        before do
+          expect(FileViewStat).to receive(:ga_statistics).exactly(12).times.and_raise(StandardError.new("GA error"))
+        end
+        it "gathers the download stats even though the view stats are failing" do
+          importer.import
+          expect(UserStat.count).to eq 8 # 2 users for 4 days
+          UserStat.all.each do |stat|
+            expect(stat.file_views).to eq 0
+            expect(stat.file_downloads).not_to eq 0
+          end
+        end
+      end
+
+      context "Only Download stats error out completely" do
+        before do
+          expect(FileDownloadStat).to receive(:ga_statistics).exactly(12).times.and_raise(StandardError.new("GA error"))
+        end
+        it "gathers the view stats even though the download stats are failing" do
+          importer.import
+          expect(UserStat.count).to eq 8 # 2 users for 4 days
+          UserStat.all.each do |stat|
+            expect(stat.file_views).not_to eq 0
+            expect(stat.file_downloads).to eq 0
+          end
+        end
+      end
+    end
   end
 
   describe 'with existing data in cache' do
@@ -143,10 +186,10 @@ describe Sufia::UserStatImporter do
     end
 
     it "doesn't duplicate entries for existing dates" do
-      expect(User.count).to eq 2
+      expect(User.count).to eq 3
       expect(UserStat.count).to eq 3
 
-      Sufia::UserStatImporter.new.import
+      described_class.new.import
 
       bilbos_stats = UserStat.where(user_id: bilbo.id).order(date: :asc)
       expect(bilbos_stats.count).to eq 4
@@ -164,12 +207,34 @@ describe Sufia::UserStatImporter do
 
       expect(frodos_stats[0].file_downloads).to eq(frodo_file_1_download_stats[0].totalEvents.to_i)
     end
+
+    it "processes the oldest records first" do
+      # Since Gollum has no stats it will be the first one processed.
+      # Followed by Frodo and Bilbo.
+      sorted_ids = described_class.new.sorted_users.map(&:id)
+      expect(sorted_ids).to eq([gollum.id, frodo.id, bilbo.id])
+    end
+
+    context "a user is already up to date" do
+      let(:importer) { described_class.new }
+      before do
+        allow(importer).to receive(:sorted_users).and_return([gollum, frodo, bilbo])
+        UserStat.create!(user_id: bilbo.id, date: dates[3], file_views: 999, file_downloads: 555)
+      end
+
+      it "skips if we already have uptodate information" do
+        expect(importer).to receive(:file_ids_for_user).with(gollum).and_call_original
+        expect(importer).to receive(:file_ids_for_user).with(frodo).and_call_original
+        # expect(importer).to receive(:file_ids_for_user).with(frodo.id).and_call_original
+        expect(importer).not_to receive(:file_ids_for_user).with(bilbo)
+        importer.import
+      end
+    end
   end
 end
 
-
 def stub_out_call_to_google_analytics
-  allow(FileViewStat).to receive(:ga_statistics) do |date, file_id|
+  allow(FileViewStat).to receive(:ga_statistics) do |_date, file_id|
     case file_id
     when bilbo_file_1.id
       bilbo_file_1_pageview_stats
@@ -180,7 +245,7 @@ def stub_out_call_to_google_analytics
     end
   end
 
-  allow(FileDownloadStat).to receive(:ga_statistics) do |date, file_id|
+  allow(FileDownloadStat).to receive(:ga_statistics) do |_date, file_id|
     case file_id
     when bilbo_file_1.id
       bilbo_file_1_download_stats

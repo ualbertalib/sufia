@@ -47,6 +47,16 @@ en:
       local_ingest:
         tab_label: "Network/Server Location"
       processing: "File is being processed; you may edit when processing has completed"
+      alert:
+        fail_html: "There was a problem during upload, none of your files uploaded correctly. Please %{reload_href}.  Use the %{contact_href} to report the error if it persists."
+        fail_restart_href_text: "start over"
+        contact_href_text: "contact form"
+        partial_fail_html: "One or more files did not upload successfully. To continue using the files that uploaded %{metadata_href}. <br /> Use the %{contact_href} to report the error if it persists."
+        partial_fail_metadata_href_text: "edit their metadata"
+      cloud_timeout_message: "Please note that if you upload a large number of files within a short period of time, the cloud provider may not be able to accommodate your request. If you experience any errors uploading from the cloud, let us know via the %{contact_href}."
+      collection:
+        select_label: "Upload to:"
+        select_default_option: "Select collection..."
     homepage:
       featured_works:
         tab_label:          'Featured Works'
@@ -59,8 +69,8 @@ en:
     dashboard:
       title:                    "My Dashboard"
       greeting:                 "Hello, "
-      upload:                   "Upload"
-      create_collection:        "Create Collection"
+      upload_html:                   '<span class="glyphicon glyphicon-upload"></span> Upload'
+      create_collection_html:        '<span class="glyphicon glyphicon-plus"></span> Create Collection'
       view_collections:         "View Collections"
       view_files:               "View Files"
       user_activity:            "User Activity"
@@ -121,12 +131,21 @@ en:
     visibility:
       open: "Open Access"
       private: "Private"
+      open_title_attr: "Change the visibility of this resource"
+      private_title_attr: "Change the visibility of this resource"
     user_profile:
       no_followers: "No one is following you."
       no_following: "You are not following anyone."
+      no_followers_other: "No one is following this user."
+      no_following_other: "This user is not following anyone."
       orcid:
         alt: "ORCID icon"
         label: "ORCID Profile"
+      zotero:
+        alt: "Zotero icon"
+        label: "Zotero Profile"
+        connected: "Connected!"
+        unlinked: "Link with Zotero"
     batch:
       help:
         title: "Filename will be the default title. Please provide a more meaningful title, and filenames will still be preserved by the system."
@@ -144,6 +163,16 @@ en:
         add_another_keyword: "add another Keyword"
         add_another_creator: "add another Creator"
         add_another_rights: "add another Rights"
+      show:
+        edit:
+          label: "Edit"
+          desc: "Edit metadata for this Collection"
+        add_files:
+          label: "Add files"
+          desc: "Add files to this Collection"
+        upload_files:
+          label: "Upload files"
+          desc: "Upload files to this Collection"
     mailbox:
       date:     'Date'
       subject:  'Subject'
@@ -153,6 +182,17 @@ en:
       browse_view: "Browse View"
     footer:
       copyright_html: "<strong>Copyright &copy; 2015 Project Hydra</strong> Licensed under the Apache License, Version 2.0"
+    admin:
+      stats:
+        registered: "Registered"
+        deposited_form:
+          heading: "Display Files Deposited:"
+          start_label: "Start"
+          end_label: "end [defaults to now]"
+        user_deposits:
+          heading: "Display files deposited by users"
+          start_label: "Starting"
+          end_label: "Ending [defaults to now]"
 
   simple_form:
     labels:
@@ -195,4 +235,3 @@ en:
         description: "Usage information for abstract or summary"
         tag: "Usage information for keyword"
         rights: "Usage information for rights"
-

@@ -1,8 +1,12 @@
 require 'spec_helper'
 
 describe 'batch/edit.html.erb' do
-  let(:batch) { stub_model(Batch, id: '123') }
-  let(:generic_file) { stub_model(GenericFile, id: nil, depositor: 'bob', rights: ['']) }
+  let(:batch) { Batch.create }
+  let(:generic_file) do
+    GenericFile.new(title: ['some title']).tap do |f|
+      f.apply_depositor_metadata("bob")
+    end
+  end
   let(:form) { Sufia::Forms::BatchEditForm.new(generic_file) }
 
   before do
@@ -12,7 +16,7 @@ describe 'batch/edit.html.erb' do
     render
   end
 
-  it "should draw the page" do
+  it "draws the page" do
     # form
     expect(rendered).to have_selector "form#new_generic_file"
     # should have browser validations
@@ -31,7 +35,5 @@ describe 'batch/edit.html.erb' do
     page.all('select#generic_file_rights option').each do |elem|
       expect(elem.value).to_not be_empty
     end
-
   end
 end
-

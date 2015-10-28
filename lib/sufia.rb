@@ -8,6 +8,9 @@ require "sufia/version"
 require 'blacklight'
 require 'blacklight_advanced_search'
 require 'sufia/models'
+require 'sufia/inflections'
+require 'sufia/arkivo'
+require 'sufia/zotero'
 
 require 'rails_autolink'
 require 'font-awesome-rails'
@@ -34,8 +37,8 @@ module Sufia
     )
 
     config.assets.paths << config.root.join('vendor', 'assets', 'fonts')
-    config.assets.precompile << %r(vjs\.(?:eot|ttf|woff)$)
-    config.assets.precompile << %r(fontawesome-webfont\.(?:svg|ttf|woff)$)
+    config.assets.precompile << /vjs\.(?:eot|ttf|woff)$/
+    config.assets.precompile << /fontawesome-webfont\.(?:svg|ttf|woff)$/
     config.assets.precompile += %w( ZeroClipboard.swf )
   end
 end

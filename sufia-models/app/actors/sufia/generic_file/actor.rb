@@ -1,7 +1,6 @@
 module Sufia::GenericFile
   # Actions are decoupled from controller logic so that they may be called from a controller or a background job.
   class Actor
-
     attr_reader :generic_file, :user
 
     def initialize(generic_file, user)
@@ -28,15 +27,25 @@ module Sufia::GenericFile
       yield(generic_file) if block_given?
     end
 
-    def create_content(file, file_name, path, mime_type)
+    def create_content(file, file_name, path, mime_type, collection_id = nil)
       generic_file.add_file(file, path: path, original_name: file_name, mime_type: mime_type)
       generic_file.label ||= file_name
-      generic_file.title = [file_name] if generic_file.title.blank?
-      save_characterize_and_record_committer do
+      generic_file.title = [generic_file.label] if generic_file.title.blank?
+      saved = save_characterize_and_record_committer do
         if Sufia.config.respond_to?(:after_create_content)
           Sufia.config.after_create_content.call(generic_file, user)
         end
       end
+      add_file_to_collection(collection_id) if saved
+      saved
+    end
+
+    def add_file_to_collection(collection_id)
+      return if collection_id.nil? || collection_id == "-1"
+      collection = Collection.find(collection_id)
+      return unless user.can? :edit, collection
+      collection.add_members [generic_file.id]
+      collection.save
     end
 
     def revert_content(revision_id)
@@ -73,9 +82,7 @@ module Sufia::GenericFile
     def destroy
       generic_file.destroy
       FeaturedWork.where(generic_file_id: generic_file.id).destroy_all
-      if Sufia.config.respond_to?(:after_destroy)
-        Sufia.config.after_destroy.call(generic_file.id, user)
-      end
+      Sufia.config.after_destroy.call(generic_file.id, user) if Sufia.config.respond_to?(:after_destroy)
     end
 
     # Takes an optional block and executes the block if the save was successful.
@@ -86,15 +93,16 @@ module Sufia::GenericFile
     end
 
     # Takes an optional block and executes the block if the save was successful.
+    # returns false if the save was unsuccessful
     def save_and_record_committer
       save_tries = 0
       begin
         return false unless generic_file.save
       rescue RSolr::Error::Http => error
         ActiveFedora::Base.logger.warn "Sufia::GenericFile::Actor::save_and_record_committer Caught RSOLR error #{error.inspect}"
-        save_tries+=1
+        save_tries += 1
         # fail for good if the tries is greater than 3
-        raise error if save_tries >=3
+        raise error if save_tries >= 3
         sleep 0.01
         retry
       end
@@ -115,7 +123,7 @@ module Sufia::GenericFile
           return
         end
         scan_result = ClamAV.instance.scanfile(path)
-        raise Sufia::VirusFoundError.new("A virus was found in #{path}: #{scan_result}") unless scan_result == 0
+        raise Sufia::VirusFoundError, "A virus was found in #{path}: #{scan_result}" unless scan_result == 0
       end
     end
 

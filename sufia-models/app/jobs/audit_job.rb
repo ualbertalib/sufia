@@ -1,4 +1,4 @@
-class AuditJob < ActiveFedoraPidBasedJob
+class AuditJob < ActiveFedoraIdBasedJob
   def queue_name
     :audit
   end
@@ -6,7 +6,7 @@ class AuditJob < ActiveFedoraPidBasedJob
   PASS = 'Passing Audit Run'
   FAIL = 'Failing Audit Run'
 
-  attr_accessor :uri, :pid, :path
+  attr_accessor :uri, :id, :path
 
   # URI of the resource to audit.
   # This URI could include the actual resource (e.g. content) and the version to audit:
@@ -14,14 +14,12 @@ class AuditJob < ActiveFedoraPidBasedJob
   # but it could also just be:
   #     http://localhost:8983/fedora/rest/test/a/b/c/abcxyz/content
   def initialize(id, path, uri)
-    super(uri)
-    self.pid = id
+    super(id)
     self.path = path
     self.uri = uri
   end
 
   def run
-    fixity_ok = false
     log = run_audit
     fixity_ok = (log.pass == 1)
     unless fixity_ok
@@ -29,7 +27,7 @@ class AuditJob < ActiveFedoraPidBasedJob
       login = generic_file.depositor
       user = User.find_by_user_key(login)
       logger.warn "User '#{login}' not found" unless user
-      job_user = User.audituser()
+      job_user = User.audituser
       file_title = generic_file.title.first
       message = "The audit run at #{log.created_at} for #{file_title} (#{uri}) failed."
       subject = FAIL
@@ -49,12 +47,12 @@ class AuditJob < ActiveFedoraPidBasedJob
 
       if fixity_ok
         passing = 1
-        ChecksumAuditLog.prune_history(pid, path)
+        ChecksumAuditLog.prune_history(id, path)
       else
         logger.warn "***AUDIT*** Audit failed for #{uri} #{error_msg}"
         passing = 0
       end
-      ChecksumAuditLog.create!(pass: passing, pid: pid, version: uri, dsid: path)
+      ChecksumAuditLog.create!(pass: passing, generic_file_id: id, version: uri, dsid: path)
     end
 
     def logger

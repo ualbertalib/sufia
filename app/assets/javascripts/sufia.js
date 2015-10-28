@@ -28,12 +28,14 @@
 
 //= require batch_edit
 //= require terms_of_service
+//= require notifications_check
 //
 //= require sufia/app
 //= require sufia/fileupload
 //= require sufia/permissions
 //= require sufia/trophy
 //= require sufia/featured_works
+//= require sufia/featured_researcher
 //= require sufia/batch_select_all
 //= require sufia/edit_metadata
 //= require sufia/single_use_link
@@ -85,8 +87,6 @@ Blacklight.onLoad(function() {
 
   // set up global batch edit options to override the ones in the gem
   window.batch_edits_options = { checked_label: "",unchecked_label: "",progress_label: "",status_label: "",css_class: "batch_toggle"};
-
-  setInterval(notify_update_link, 30*1000);
 
   // bootstrap alerts are closed this function
   $(document).on('click', '.alert .close' , function(){

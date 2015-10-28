@@ -1,12 +1,11 @@
 require 'spec_helper'
 
-describe "Sending an email via the contact form", :type => :feature do
-
+describe "Sending an email via the contact form", type: :feature do
   before do
     sign_in :user_with_fixtures
   end
 
-  it "should send mail" do
+  it "sends mail" do
     allow_any_instance_of(ContactForm).to receive(:deliver).and_return(true)
     visit '/'
     click_link "Contact"
@@ -18,11 +17,12 @@ describe "Sending an email via the contact form", :type => :feature do
     select "Depositing content", from: "contact_form_category"
     click_button "Send"
     expect(page).to have_content "Thank you"
+    expect(page).not_to have_content "I am contacting you regarding ScholarSphere."
     # this step allows the delivery to go back to normal
     allow_any_instance_of(ContactForm).to receive(:deliver).and_call_original
   end
 
-  it "should give an error when I don't provide a contact type" do
+  it "gives an error when I don't provide a contact type" do
     visit '/'
     click_link "Contact"
     expect(page).to have_content "Contact Form"
@@ -34,7 +34,7 @@ describe "Sending an email via the contact form", :type => :feature do
     expect(page).to have_content "Sorry, this message was not sent successfully"
   end
 
-  it "should give an error when I don't provide a valid email" do
+  it "gives an error when I don't provide a valid email" do
     visit '/'
     click_link "Contact"
     expect(page).to have_content "Contact Form"
@@ -47,7 +47,7 @@ describe "Sending an email via the contact form", :type => :feature do
     expect(page).to have_content "Sorry, this message was not sent successfully"
   end
 
-  it "should give an error when I don't provide a name" do
+  it "gives an error when I don't provide a name" do
     visit '/'
     click_link "Contact"
     expect(page).to have_content "Contact Form"
@@ -60,8 +60,8 @@ describe "Sending an email via the contact form", :type => :feature do
   end
 
   context "when I don't provide a subject", :js do
-    it "should give an error" do
-      # TODO this should be a controller test, because that any_instance will be in a different thread
+    it "gives an error" do
+      # TODO: this should be a controller test, because that any_instance will be in a different thread
       visit '/'
       click_link "Contact"
       expect(page).to have_content "Contact Form"
@@ -75,8 +75,8 @@ describe "Sending an email via the contact form", :type => :feature do
   end
 
   context "when I don't provide a message", :js do
-    it "should give an error" do
-      # TODO this should be a controller test, because that any_instance will be in a different thread
+    it "gives an error" do
+      # TODO: this should be a controller test, because that any_instance will be in a different thread
       visit '/'
       click_link "Contact"
       expect(page).to have_content "Contact Form"
@@ -89,7 +89,7 @@ describe "Sending an email via the contact form", :type => :feature do
     end
   end
 
-  it "should give an error when I provide an invalid captcha" do
+  it "gives an error when I provide an invalid captcha" do
     visit '/'
     click_link "Contact"
     expect(page).to have_content "Contact Form"

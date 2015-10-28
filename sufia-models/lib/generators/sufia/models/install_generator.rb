@@ -2,7 +2,7 @@ require_relative 'abstract_migration_generator'
 
 class Sufia::Models::InstallGenerator < Sufia::Models::AbstractMigrationGenerator
   source_root File.expand_path('../templates', __FILE__)
-  argument     :model_name, type: :string , default: "user"
+  argument :model_name, type: :string, default: "user"
   desc """
 This generator makes the following changes to your application:
  1. Creates several database migrations if they do not exist in /db/migrate
@@ -10,15 +10,17 @@ This generator makes the following changes to your application:
  3. Creates the sufia.rb configuration file
  4. Generates mailboxer
  5. Generates usage stats config
- 6. Installs Blacklight gallery
- 7. Runs full-text generator
- 8. Runs proxies generator
- 9. Runs cached stats generator
-10. Runs ORCID field generator
-11. Runs user stats generator
+ 6. Runs full-text generator
+ 7. Runs proxies generator
+ 8. Runs cached stats generator
+ 9. Runs ORCID field generator
+10. Runs user stats generator
+11. Runs citation config generator
+12. Runs upload_to_collection config generator
+13. Generates mini-magick config
        """
   def banner
-    say_status("warning", "GENERATING SUFIA MODELS", :yellow)
+    say_status("info", "GENERATING SUFIA MODELS", :blue)
   end
 
   # Setup the database migrations
@@ -47,7 +49,7 @@ This generator makes the following changes to your application:
   # Add behaviors to the user model
   def inject_sufia_user_behavior
     file_path = "app/models/#{model_name.underscore}.rb"
-    if File.exists?(file_path)
+    if File.exist?(file_path)
       inject_into_file file_path, after: /include Hydra\:\:User.*$/ do
         "# Connects this user object to Sufia behaviors. " +
           "\n include Sufia::User\n"
@@ -59,13 +61,14 @@ This generator makes the following changes to your application:
 
   def create_configuration_files
     append_file 'config/initializers/mime_types.rb',
-                     "\nMime::Type.register 'application/x-endnote-refer', :endnote", {verbose: false }
+                "\nMime::Type.register 'application/x-endnote-refer', :endnote", verbose: false
     copy_file 'config/sufia.rb', 'config/initializers/sufia.rb'
     copy_file 'config/redis.yml', 'config/redis.yml'
     copy_file 'config/resque-pool.yml', 'config/resque-pool.yml'
     copy_file 'config/redis_config.rb', 'config/initializers/redis_config.rb'
     copy_file 'config/resque_admin.rb', 'config/initializers/resque_admin.rb'
     copy_file 'config/resque_config.rb', 'config/initializers/resque_config.rb'
+    copy_file 'config/resque.rake', 'lib/tasks/resque.rake'
   end
 
   def create_collection
@@ -78,10 +81,6 @@ This generator makes the following changes to your application:
 
   def configure_usage_stats
     generate 'sufia:models:usagestats'
-  end
-
-  def install_blacklight_gallery
-    generate "blacklight_gallery:install"
   end
 
   # Sets up full-text indexing (Solr config + jars)
@@ -107,5 +106,25 @@ This generator makes the following changes to your application:
   # Adds user stats-related migration & methods
   def user_stats
     generate 'sufia:models:user_stats'
+  end
+
+  # Adds clamav initializtion
+  def clamav
+    generate 'sufia:models:clamav'
+  end
+
+  # Adds citations initialization
+  def citation_config
+    generate 'sufia:models:citation_config'
+  end
+
+  # Adds upload_to_collection initialization
+  def upload_to_collection_config
+    generate 'sufia:models:upload_to_collection_config'
+  end
+
+  # Add mini-magick configuration
+  def minimagic_config
+    generate 'sufia:models:minimagick_config'
   end
 end

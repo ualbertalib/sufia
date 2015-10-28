@@ -2,8 +2,7 @@ require 'net/https'
 require 'uri'
 require 'tempfile'
 
-class ImportUrlJob < ActiveFedoraPidBasedJob
-
+class ImportUrlJob < ActiveFedoraIdBasedJob
   def queue_name
     :import_url
   end
@@ -11,8 +10,12 @@ class ImportUrlJob < ActiveFedoraPidBasedJob
   def run
     user = User.find_by_user_key(generic_file.depositor)
 
-    Tempfile.open(pid.gsub('/', '_')) do |f|
+    Tempfile.open(id.tr('/', '_')) do |f|
       path, mime_type = copy_remote_file(generic_file.import_url, f)
+
+      # reload the generic file once the data is copied since this is a long running task
+      generic_file.reload
+
       # attach downloaded file to generic file stubbed out
       if Sufia::GenericFile::Actor.new(generic_file, user).create_content(f, path, 'content', mime_type)
         # add message to user for downloaded file
@@ -24,12 +27,12 @@ class ImportUrlJob < ActiveFedoraPidBasedJob
     end
   end
 
-  def copy_remote_file(import_url, f)
+  def copy_remote_file(_import_url, f)
     f.binmode
     # download file from url
     uri = URI(generic_file.import_url)
     http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = uri.scheme == "https"  # enable SSL/TLS
+    http.use_ssl = uri.scheme == "https" # enable SSL/TLS
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     mime_type = nil
 
@@ -43,7 +46,7 @@ class ImportUrlJob < ActiveFedoraPidBasedJob
     end
 
     f.rewind
-    return uri.path, mime_type
+    [uri.path, mime_type]
   end
 
   def job_user
