@@ -1,7 +1,4 @@
-module  Sufia
-
-  # This is adapted from Worthwhile-models: manages_embargoes_actor.rb
-  # https://github.com/projecthydra-labs/worthwhile/blob/master/worthwhile-models
+module Sufia::GenericFile
   #  To use this module, include it in your Actor class
   #  and then add its interpreters wherever you want them to run.
   #  They should be called _before_ apply_attributes is called because

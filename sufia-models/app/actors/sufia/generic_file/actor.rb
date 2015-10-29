@@ -1,10 +1,13 @@
 module Sufia::GenericFile
   # Actions are decoupled from controller logic so that they may be called from a controller or a background job.
   class Actor
-    include Sufia::ManagesEmbargoesActor
-    attr_reader :generic_file, :user
+    include Sufia::GenericFile::ManagesEmbargoesActor
 
-    def initialize(generic_file, user, input_attributes)
+    attr_reader :attributes, :generic_file, :user
+
+    delegate :visibility_changed?, to: :generic_file
+
+    def initialize(generic_file, user, input_attributes={})
       @generic_file = generic_file
       @user = user
       @attributes = input_attributes
@@ -71,7 +74,8 @@ module Sufia::GenericFile
 
     def update_metadata(attributes, visibility)
       generic_file.attributes = attributes
-      update_visibility(visibility)
+      interpret_visibility
+      update_visibility(attributes[:visibility]) if attributes.key?(:visibility)
       generic_file.date_modified = DateTime.now
       remove_from_feature_works if generic_file.visibility_changed? && !generic_file.public?
       save_and_record_committer do

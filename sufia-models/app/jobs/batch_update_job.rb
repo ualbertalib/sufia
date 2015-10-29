@@ -6,11 +6,9 @@ class BatchUpdateJob
     :batch_update
   end
 
-  attr_accessor :login, :title, :file_attributes, :batch_id, :visibility, :saved, :denied, :embargo_release_date, :visibility_during_embargo,
-                :visibility_after_embargo
+  attr_accessor :login, :title, :file_attributes, :batch_id, :visibility, :saved, :denied, :embargo_release_date, :visibility_during_embargo, :visibility_after_embargo
 
-  def initialize(login, batch_id, title, file_attributes, visibility, embargo_release_date=nil, visibility_during_embargo=nil,
-                  visibility_after_embargo=nil)
+  def initialize(login, batch_id, title, file_attributes, visibility, embargo_release_date=nil, visibility_during_embargo=nil, visibility_after_embargo=nil)
     self.login = login
     self.title = title || {}
     self.file_attributes = file_attributes
