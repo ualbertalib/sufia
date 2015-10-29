@@ -14,6 +14,10 @@ module Sufia
       def private?
         !(public? || registered?)
       end
+
+      def embargoed?
+        self.respond_to?(:under_embargo?) && self.under_embargo?
+      end
     end
   end
 end

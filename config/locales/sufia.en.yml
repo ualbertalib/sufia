@@ -131,6 +131,7 @@ en:
     visibility:
       open: "Open Access"
       private: "Private"
+      embargo: "Embargo"
       open_title_attr: "Change the visibility of this resource"
       private_title_attr: "Change the visibility of this resource"
     user_profile:

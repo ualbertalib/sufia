@@ -1,11 +1,13 @@
 module Sufia::GenericFile
   # Actions are decoupled from controller logic so that they may be called from a controller or a background job.
   class Actor
+    include Sufia::ManagesEmbargoesActor
     attr_reader :generic_file, :user
 
-    def initialize(generic_file, user)
+    def initialize(generic_file, user, input_attributes)
       @generic_file = generic_file
       @user = user
+      @attributes = input_attributes
     end
 
     # in order to avoid two saves in a row, create_metadata does not save the file by default.
@@ -131,7 +133,7 @@ module Sufia::GenericFile
 
       # This method can be overridden in case there is a custom approach for visibility (e.g. embargo)
       def update_visibility(visibility)
-        generic_file.visibility = visibility
+        interpret_visibility
       end
 
     private
