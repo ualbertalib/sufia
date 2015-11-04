@@ -45,10 +45,8 @@ module Sufia::GenericFile
       else
         attributes.delete(:visibility)
         generic_file.apply_embargo(attributes[:embargo_release_date], attributes.delete(:visibility_during_embargo),
-                  attributes.delete(:visibility_after_embargo))
-        if generic_file.embargo
-          generic_file.embargo.save
-        end 
+                                   attributes.delete(:visibility_after_embargo))
+        generic_file.embargo.save if generic_file.embargo
         generic_file.save
         true
       end
@@ -72,15 +70,13 @@ module Sufia::GenericFile
         false
       else
         generic_file.apply_lease(attributes[:lease_expiration_date], attributes.delete(:visibility_during_lease),
-                                       attributes.delete(:visibility_after_lease))
+                                 attributes.delete(:visibility_after_lease))
         if generic_file.lease
-          generic_file.lease.save  # See https://github.com/projecthydra/hydra-head/issues/226
+          generic_file.lease.save # See https://github.com/projecthydra/hydra-head/issues/226
         end
         attributes.delete(:visibility)
         true
       end
     end
-
-
   end
 end

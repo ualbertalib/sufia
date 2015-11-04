@@ -8,14 +8,14 @@ class BatchUpdateJob
 
   attr_accessor :login, :title, :file_attributes, :batch_id, :visibility, :saved, :denied, :embargo_release_date, :visibility_during_embargo, :visibility_after_embargo
 
-  def initialize(login, batch_id, title, file_attributes, visibility, embargo_release_date=nil, visibility_during_embargo=nil, visibility_after_embargo=nil)
+  def initialize(login, batch_id, title, file_attributes, visibility, embargo_attributes = nil)
     self.login = login
     self.title = title || {}
     self.file_attributes = file_attributes
     self.visibility = visibility
-    self.embargo_release_date = embargo_release_date
-    self.visibility_during_embargo = visibility_during_embargo
-    self.visibility_after_embargo = visibility_after_embargo
+    self.embargo_release_date = embargo_attributes || embargo_attributes[:embargo_release_date]
+    self.visibility_during_embargo = embargo_attributes || embargo_attributes[:visibility_during_embargo]
+    self.visibility_after_embargo = embargo_attributes || embargo_attributes[:visibility_after_embargo]
     self.batch_id = batch_id
     self.saved = []
     self.denied = []
@@ -46,11 +46,20 @@ class BatchUpdateJob
     end
     gf.title = title[gf.id] if title[gf.id]
     gf.attributes = file_attributes
-    gf.visibility = visibility unless visibility == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_EMBARGO
-    if visibility == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_EMBARGO
-      gf.apply_embargo(embargo_release_date, visibility_during_embargo, visibility_after_embargo)
-    end
+    update_visibility gf
 
+    save gf
+    Sufia.queue.push(ContentUpdateEventJob.new(gf.id, login))
+    saved << gf
+  end
+
+  def update_visibility(gf)
+    gf.visibility = visibility unless visibility == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_EMBARGO
+    return unless visibility != Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_EMBARGO
+    gf.apply_embargo(embargo_release_date, visibility_during_embargo, visibility_after_embargo)
+  end
+
+  def save(gf)
     save_tries = 0
     begin
       gf.save!
@@ -62,8 +71,6 @@ class BatchUpdateJob
       sleep 0.01
       retry
     end #
-    Sufia.queue.push(ContentUpdateEventJob.new(gf.id, login))
-    saved << gf
   end
 
   def send_user_success_message(user, batch)

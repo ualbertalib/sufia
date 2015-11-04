@@ -200,7 +200,7 @@ module Sufia
       end
 
       def attributes
-        attributes = params
+        params
       end
 
       def update_version

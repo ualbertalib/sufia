@@ -7,7 +7,7 @@ module Sufia::GenericFile
 
     delegate :visibility_changed?, to: :generic_file
 
-    def initialize(generic_file, user, input_attributes={})
+    def initialize(generic_file, user, input_attributes = {})
       @generic_file = generic_file
       @user = user
       @attributes = input_attributes
@@ -72,7 +72,7 @@ module Sufia::GenericFile
       end
     end
 
-    def update_metadata(attributes, visibility)
+    def update_metadata(attributes, _visibility)
       generic_file.attributes = attributes
       interpret_visibility
       update_visibility(attributes[:visibility]) if attributes.key?(:visibility)
@@ -136,7 +136,7 @@ module Sufia::GenericFile
     protected
 
       # This method can be overridden in case there is a custom approach for visibility (e.g. embargo)
-      def update_visibility(visibility)
+      def update_visibility(_visibility)
         interpret_visibility
       end
 

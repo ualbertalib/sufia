@@ -5,7 +5,7 @@ describe Sufia::GenericFile::Actor do
 
   let(:user) { FactoryGirl.create(:user) }
   let(:generic_file) { FactoryGirl.create(:generic_file) }
-  let(:attributes) {{}}
+  let(:attributes) { {} }
   let(:actor) { described_class.new(generic_file, user, attributes) }
   let(:uploaded_file) { fixture_file_upload('/world.png', 'image/png') }
 

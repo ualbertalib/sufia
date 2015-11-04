@@ -10,7 +10,7 @@ module Sufia
 
       def visibility_with_embargo
         return Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_EMBARGO if under_embargo?
-        return visibility_without_embargo
+        visibility_without_embargo
       end
     end
   end
